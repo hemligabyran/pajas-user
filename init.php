@@ -14,7 +14,7 @@ if (
 		array(':kohana_version', Kohana::VERSION));
 
 // Check for pajas-database
-if ( ! version_compare(PAJAS_DATABASE_VERSION, '1.0', '>='))
+if ( ! version_compare(PAJAS_DATABASE_VERSION, '1.0', '='))
 	throw new Kohana_Exception('Pajas database module version 1.0 required');
 
 
