@@ -22,6 +22,8 @@ if ( ! version_compare(PAJAS_DATABASE_VERSION, '1.0', '='))
 // Check if the page is restricted
 $user = new User;
 
+if ( ! isset($_SERVER['REQUEST_URI'])) $_SERVER['REQUEST_URI'] = '';
+
 if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE)
 {
 	if ($this->acl_redirect_url) $this->redirect($this->acl_redirect_url);
