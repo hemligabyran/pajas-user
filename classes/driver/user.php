@@ -70,10 +70,10 @@ abstract class Driver_User extends Model
 	/**
 	 * Get user data
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @return array - ex array('firstname' => array('John'), 'lastname' => array('Smith'), 'email' => array('one@larvit.se','two@larvit.se))
 	 */
-	abstract public function get_user_data($user_id);
+	abstract public function get_user_data($id);
 
 	/**
 	 * Get user id by field
@@ -82,7 +82,7 @@ abstract class Driver_User extends Model
 	 * @param str $value - Field value (OPTIONAL)
 	 * @return int (Will only return first row if several matches exists)
 	 */
-	abstract public function get_user_id_by_field($field, $value = FALSE);
+	abstract public function get_id_by_field($field, $value = FALSE);
 
 	/**
 	 * Get user id by username
@@ -90,7 +90,7 @@ abstract class Driver_User extends Model
 	 * @param str $username
 	 * @return int
 	 */
-	abstract public function get_user_id_by_username($username);
+	abstract public function get_id_by_username($username);
 
 	/**
 	 * Get user id by username and (ENCRYPTED!!!) password
@@ -99,15 +99,15 @@ abstract class Driver_User extends Model
 	 * @param str $password - Should already be encrypted!
 	 * @return int
 	 */
-	abstract public function get_user_id_by_username_and_password($username, $password);
+	abstract public function get_id_by_username_and_password($username, $password);
 
 	/**
 	 * Get username by user id
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @return str
 	 */
-	abstract public function get_username_by_id($user_id);
+	abstract public function get_username_by_id($id);
 
 	/**
 	 * Get list of users
@@ -189,39 +189,39 @@ abstract class Driver_User extends Model
 	/**
 	 * Remove user
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @return boolean
 	 */
-	abstract public function rm_user($user_id);
+	abstract public function rm_user($id);
 
 	/**
 	 * Set data
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @param arr $data                - ex array('firstname' => 'John', 'lastname' => 'Smith', 'email' => array('one@larvit.se','two@larvit.se))
 	 * @param bol $clear_previous_data - If TRUE, the previous data in the present
 	 *                                   fields will be cleared
 	 * @return boolean
 	 */
-	abstract public function set_data($user_id, $data, $clear_previous_data = TRUE);
+	abstract public function set_data($id, $data, $clear_previous_data = TRUE);
 
 	/**
 	 * Set password
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @param str $password - ENCRYPTED
 	 * @return boolean
 	 */
-	abstract public function set_password($user_id, $password);
+	abstract public function set_password($id, $password);
 
 	/**
 	 * Set username
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @param str $username - Must be unique
 	 * @return boolean
 	 */
-	abstract public function set_username($user_id, $username);
+	abstract public function set_username($id, $username);
 
 	/**
 	 * Update field

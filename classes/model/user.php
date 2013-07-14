@@ -29,7 +29,7 @@ class Model_User extends Model
 	 *
 	 * @var integer
 	 */
-	protected $user_id;
+	protected $id;
 
 	/**
 	 * Username
@@ -48,13 +48,13 @@ class Model_User extends Model
 	/**
 	 * Constructor
 	 *
-	 * @param int $user_id       - Specific user id. Pass FALSE to use username and password
-	 * @param str $username      - Ignored if $user_id is passed
-	 * @param str $password      - Plain text password, ignored if $user_id is passed
+	 * @param int $id            - Specific user id. Pass FALSE to use username and password
+	 * @param str $username      - Ignored if $id is passed
+	 * @param str $password      - Plain text password, ignored if $id is passed
 	 * @param str $instance_name - Instance name
 	 * @param bol $session       - Defines if the logged in user id should be saved in session
 	 */
-	public function __construct($user_id = FALSE, $username = FALSE, $password = FALSE, $instance_name = 'default', $session = TRUE)
+	public function __construct($id = FALSE, $username = FALSE, $password = FALSE, $instance_name = 'default', $session = TRUE)
 	{
 		parent::__construct(); // Connect to the database
 		Session::instance(); // Make sure sessions is turned on
@@ -62,28 +62,37 @@ class Model_User extends Model
 		if ($session != TRUE) $this->instance_name = FALSE;
 		else                  $this->instance_name = $instance_name;
 
-		if ($user_id)
+		if ($id)
 		{
-			if ( ! $this->login_by_user_id($user_id)) throw new Exception('Invalid user ID');
+			if ( ! $this->login_by_id($id)) throw new Exception('Invalid user ID');
 		}
 		elseif (($username) && ($password))
 			$this->login_by_username_and_password($username, $password);
 		elseif ($session)
 		{
 			if (isset($_SESSION['modules']['pajas'][$instance_name]))
-				$this->login_by_user_id($_SESSION['modules']['pajas'][$instance_name]);
+				$this->login_by_id($_SESSION['modules']['pajas'][$instance_name]);
 		}
 
 		self::$instances[$instance_name] = $this;
+	}
+
+	public function __get($name)
+	{
+		if     ($name == 'id' && is_int($this->id))                           return $this->id;
+		elseif ($name == 'username' && $this->username !== NULL)              return $this->username;
+		elseif ($name == 'instance_name' && $this->instance_name !== NULL)    return $this->instance_name;
+		elseif (is_array($this->user_data) && isset($this->user_data[$name])) return $this->user_data[$name];
+		else                                                                  return NULL;
 	}
 
 	/**
 	 * Simple factory
 	 * Same docs as to __construct()
 	 */
-	public static function factory($user_id = FALSE, $username = FALSE, $password = FALSE, $instance_name = 'default', $session = TRUE)
+	public static function factory($id = FALSE, $username = FALSE, $password = FALSE, $instance_name = 'default', $session = TRUE)
 	{
-		return new self($user_id, $username, $password, $instance_name, $session);
+		return new self($id, $username, $password, $instance_name, $session);
 	}
 
 	/**
@@ -170,13 +179,13 @@ class Model_User extends Model
 	}
 
 	/**
-	 * Get username by user i
+	 * Get username by user id
 	 *
 	 * @return str or FALSE
 	 */
-	public static function get_username_by_id($user_id)
+	public static function get_username_by_id($id)
 	{
-		return self::driver()->get_username_by_id($user_id);
+		return self::driver()->get_username_by_id($id);
 	}
 
 	/**
@@ -215,10 +224,10 @@ class Model_User extends Model
 	 *
 	 * @return int
 	 */
-	public function get_user_id()
+	public function get_id()
 	{
-		if ($this->user_id)
-			return $this->user_id;
+		if ($this->id)
+			return $this->id;
 
 		return FALSE;
 	}
@@ -230,9 +239,9 @@ class Model_User extends Model
 	 * @param str $value - Field value (OPTIONAL)
 	 * @return int (Will only return first row if several matches exists)
 	 */
-	public static function get_user_id_by_field($field, $value = FALSE)
+	public static function get_id_by_field($field, $value = FALSE)
 	{
-		return self::driver()->get_user_id_by_field($field, $value);
+		return self::driver()->get_id_by_field($field, $value);
 	}
 
 	/**
@@ -241,9 +250,9 @@ class Model_User extends Model
 	 * @param str $username
 	 * @return int User ID
 	 **/
-	public static function get_user_id_by_username($username)
+	public static function get_id_by_username($username)
 	{
-		return self::driver()->get_user_id_by_username($username);
+		return self::driver()->get_id_by_username($username);
 	}
 
 	/**
@@ -362,23 +371,23 @@ class Model_User extends Model
 	 * Load user data
 	 * This method should be ran to load all internal variables from database
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @return boolean
 	 */
-	protected function load_user_data($user_id)
+	protected function load_user_data($id)
 	{
-		if ($user_id == -1)
+		if ($id == -1)
 		{
-			$this->username   = 'root';
-			$this->user_id    = -1;
-			$this->user_data  = array(
+			$this->username  = 'root';
+			$this->id        = -1;
+			$this->user_data = array(
 				'role' => array('admin')
 			);
 		}
-		elseif (($this->username) || $this->username = self::driver()->get_username_by_id($user_id))
+		elseif (($this->username) || $this->username = self::driver()->get_username_by_id($id))
 		{
-			$this->user_id    = (int) $user_id;
-			$this->user_data  = self::driver()->get_user_data($user_id);
+			$this->id        = (int) $id;
+			$this->user_data = self::driver()->get_user_data($id);
 			return TRUE;
 		}
 		return FALSE;
@@ -387,17 +396,17 @@ class Model_User extends Model
 	/**
 	 * Login by user id
 	 *
-	 * @param int $user_id
+	 * @param int $id
 	 * @return boolean
 	 */
-	public function login_by_user_id($user_id)
+	public function login_by_id($id)
 	{
-		if (self::driver()->get_username_by_id($user_id) || $user_id == -1)
+		if (self::driver()->get_username_by_id($id) || $id == -1)
 		{
-			$this->username = self::driver()->get_username_by_id($user_id);
+			$this->username = self::driver()->get_username_by_id($id);
 
-			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $user_id;
-			return $this->load_user_data($user_id);
+			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $id;
+			return $this->load_user_data($id);
 		}
 		return FALSE;
 	}
@@ -411,10 +420,10 @@ class Model_User extends Model
 	 */
 	public function login_by_username_and_password($username, $password)
 	{
-		if ($user_id = self::driver()->get_user_id_by_username_and_password($username, $this->password_encrypt($password, $username)))
+		if ($id = self::driver()->get_id_by_username_and_password($username, $this->password_encrypt($password, $username)))
 		{
-			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $user_id;
-			return $this->load_user_data($user_id);
+			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $id;
+			return $this->load_user_data($id);
 		}
 		elseif (strtolower($username) == 'root' && $password === Kohana::$config->load('user.root_password'))
 		{
@@ -431,7 +440,7 @@ class Model_User extends Model
 	 */
 	public function logged_in()
 	{
-		return is_int($this->user_id);
+		return is_int($this->id);
 	}
 
 	/**
@@ -483,7 +492,7 @@ class Model_User extends Model
 	 *                              the new user logged in. If TRUE is passed, instance name "default" will
 	 *                              be used.
 	 * @param bol $session          - If loaded into instance, also save in session
-	 * @return int (user_id) or obj (a new instance of this user as logged in)
+	 * @return int (user id) or obj (a new instance of this user as logged in)
 	 */
 	public function new_user($username, $password, $user_data = array(), $load_to_instance = FALSE, $session = FALSE)
 	{
@@ -492,21 +501,21 @@ class Model_User extends Model
 
 		if ( ! self::username_available($username)) return FALSE;
 
-		$user_id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
+		$id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
 
 		if ($load_to_instance)
 		{
-			$new_user_instance = new User($user_id, FALSE, FALSE, $load_to_instance);
+			$new_user_instance = new User($id, FALSE, FALSE, $load_to_instance);
 			if ($session)
 			{
 				if (!isset($_SESSION['modules']))
 					$_SESSION['modules'] = array('pajas' => array());
 
-				$_SESSION['modules']['pajas'][$load_to_instance] = $user_id;
+				$_SESSION['modules']['pajas'][$load_to_instance] = $id;
 			}
 			return $new_user_instance;
 		}
-		else return $user_id;
+		else return $id;
 	}
 
 	/**
@@ -552,7 +561,7 @@ class Model_User extends Model
 	public function rm_user()
 	{
 		if ($this->logged_in())
-			return self::driver()->rm_user($this->get_user_id());
+			return self::driver()->rm_user($this->get_id());
 
 		return FALSE;
 	}
@@ -572,7 +581,7 @@ class Model_User extends Model
 			{
 				if ($user_data['username'] != $this->get_username() && self::username_available($user_data['username']))
 				{
-					self::driver()->set_username($this->get_user_id(), $user_data['username']);
+					self::driver()->set_username($this->get_id(), $user_data['username']);
 					$this->username = $user_data['username'];
 				}
 				unset($user_data['username']);
@@ -581,16 +590,16 @@ class Model_User extends Model
 			if (isset($user_data['password']))
 			{
 				if ($user_data['password'] != '')
-					self::driver()->set_password($this->get_user_id(), $this->password_encrypt($user_data['password'], $this->get_username()));
+					self::driver()->set_password($this->get_id(), $this->password_encrypt($user_data['password'], $this->get_username()));
 
 				unset($user_data['password']);
 			}
 
-			self::driver()->set_data($this->get_user_id(), $user_data, TRUE);
+			self::driver()->set_data($this->get_id(), $user_data, TRUE);
 
 			// Clear local cache
 			$this->user_data = NULL;
-			$this->load_user_data($this->get_user_id());
+			$this->load_user_data($this->get_id());
 
 			return TRUE;
 		}
@@ -605,9 +614,9 @@ class Model_User extends Model
 	 */
 	public static function username_available($username)
 	{
-		$user_id = self::driver()->get_user_id_by_username($username);
+		$id = self::driver()->get_id_by_username($username);
 
-		if ( ! empty($user_id) || strtolower($username) == 'root')
+		if ( ! empty($id) || strtolower($username) == 'root')
 			return FALSE;
 
 		else return TRUE;

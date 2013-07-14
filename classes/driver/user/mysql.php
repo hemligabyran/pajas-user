@@ -63,7 +63,7 @@ class Driver_User_Mysql extends Driver_User
 		return $data_fields;
 	}
 
-	public function get_user_data($user_id)
+	public function get_user_data($id)
 	{
 		$sql = '
 			SELECT
@@ -74,7 +74,7 @@ class Driver_User_Mysql extends Driver_User
 				JOIN
 					user_data_fields ON
 						user_data_fields.id = user_users_data.field_id
-			WHERE user_users_data.user_id = '.$this->pdo->quote($user_id);
+			WHERE user_users_data.user_id = '.$this->pdo->quote($id);
 
 		$user_data = array();
 
@@ -86,7 +86,7 @@ class Driver_User_Mysql extends Driver_User
 		return $user_data;
 	}
 
-	public function get_user_id_by_field($field, $value = FALSE)
+	public function get_id_by_field($field, $value = FALSE)
 	{
 		$sql = '
 			SELECT user_id
@@ -101,19 +101,19 @@ class Driver_User_Mysql extends Driver_User
 		return $this->pdo->query($sql)->fetchColumn();
 	}
 
-	public function get_user_id_by_username($username)
+	public function get_id_by_username($username)
 	{
 		return $this->pdo->query('SELECT id FROM user_users WHERE username = '.$this->pdo->quote($username))->fetchColumn();
 	}
 
-	public function get_user_id_by_username_and_password($username, $password)
+	public function get_id_by_username_and_password($username, $password)
 	{
 		return $this->pdo->query('SELECT id FROM user_users WHERE username = '.$this->pdo->quote($username).' AND password = '.$this->pdo->quote($password))->fetchColumn();
 	}
 
-	public function get_username_by_id($user_id)
+	public function get_username_by_id($id)
 	{
-		return $this->pdo->query('SELECT username FROM user_users WHERE id = '.$this->pdo->quote($user_id))->fetchColumn();
+		return $this->pdo->query('SELECT username FROM user_users WHERE id = '.$this->pdo->quote($id))->fetchColumn();
 	}
 
 	public function get_restricted_URIs()
@@ -286,7 +286,7 @@ class Driver_User_Mysql extends Driver_User
 	{
 		$this->pdo->exec('INSERT INTO user_users (username, password) VALUES('.$this->pdo->quote($username).','.$this->pdo->quote($password).')');
 
-		$user_id = $this->pdo->lastInsertId();
+		$id = $this->pdo->lastInsertId();
 
 		if (count($user_data))
 		{
@@ -296,20 +296,16 @@ class Driver_User_Mysql extends Driver_User
 				if ($field_id = User::get_data_field_id($field_name))
 				{
 					if ( ! is_array($field_data))
-					{
 						$field_data = array($field_data);
-					}
 
 					foreach ($field_data as $field_data_piece)
-					{
-						$sql .= '('.$user_id.','.$field_id.','.$this->pdo->quote($field_data_piece).'),';
-					}
+						$sql .= '('.$id.','.$field_id.','.$this->pdo->quote($field_data_piece).'),';
 				}
 			}
 			$this->pdo->exec(substr($sql, 0, strlen($sql) - 1));
 		}
 
-		return $user_id;
+		return $id;
 	}
 
 	public function rm_field($field_id)
@@ -324,14 +320,14 @@ class Driver_User_Mysql extends Driver_User
 		$this->pdo->exec('DELETE FROM user_roles_rights WHERE role = '.$this->pdo->quote($role).' AND uri = '.$this->pdo->quote($uri));
 	}
 
-	public function rm_user($user_id)
+	public function rm_user($id)
 	{
-		$this->pdo->query('DELETE FROM user_users_data WHERE user_id = '.$this->pdo->quote($user_id));
-		$this->pdo->query('DELETE FROM user_users WHERE id = '.$this->pdo->quote($user_id));
+		$this->pdo->query('DELETE FROM user_users_data WHERE user_id = '.$this->pdo->quote($id));
+		$this->pdo->query('DELETE FROM user_users WHERE id = '.$this->pdo->quote($id));
 		return TRUE;
 	}
 
-	public function set_data($user_id, $user_data, $clear_previous_data = TRUE)
+	public function set_data($id, $user_data, $clear_previous_data = TRUE)
 	{
 
 		if ($clear_previous_data)
@@ -350,7 +346,7 @@ class Driver_User_Mysql extends Driver_User
 						JOIN user_data_fields ON user_data_fields.id = user_users_data.field_id
 					WHERE
 						user_data_fields.name IN ('.implode(',', $fields).') AND
-						user_users_data.user_id = '.$this->pdo->quote($user_id));
+						user_users_data.user_id = '.$this->pdo->quote($id));
 			}
 		}
 
@@ -367,7 +363,7 @@ class Driver_User_Mysql extends Driver_User
 					{
 						$sql .= '
 							(
-								'.$this->pdo->quote($user_id).',
+								'.$this->pdo->quote($id).',
 								'.User::get_data_field_id($field).',
 								'.$this->pdo->quote($content_piece).'
 							),';
@@ -382,14 +378,14 @@ class Driver_User_Mysql extends Driver_User
 		return TRUE;
 	}
 
-	public function set_password($user_id, $password)
+	public function set_password($id, $password)
 	{
-		return $this->pdo->query('UPDATE user_users SET password = '.$this->pdo->quote($password).' WHERE id = '.$this->pdo->quote($user_id));
+		return $this->pdo->query('UPDATE user_users SET password = '.$this->pdo->quote($password).' WHERE id = '.$this->pdo->quote($id));
 	}
 
-	public function set_username($user_id, $username)
+	public function set_username($id, $username)
 	{
-		return $this->pdo->query('UPDATE user_users SET username = '.$this->pdo->quote($username).' WHERE id = '.$this->pdo->quote($user_id));
+		return $this->pdo->query('UPDATE user_users SET username = '.$this->pdo->quote($username).' WHERE id = '.$this->pdo->quote($id));
 	}
 
 	public function update_field($field_id, $field_name)
