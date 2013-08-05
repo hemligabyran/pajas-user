@@ -74,7 +74,7 @@ class Model_User extends Model
 				$this->login_by_id($_SESSION['modules']['pajas'][$instance_name]);
 		}
 
-		self::$instances[$instance_name] = $this;
+		self::$instances[$this->instance_name] = $this;
 	}
 
 	public function __get($name)
@@ -302,6 +302,9 @@ class Model_User extends Model
 
 	public function has_access_to($URI)
 	{
+		// Root always have access
+		if ($this->id == -1) return TRUE;
+
 		$request_URI = substr($URI, 1);
 		$restricted  = FALSE;
 		foreach (self::get_restricted_URIs() as $restricted_URI)
