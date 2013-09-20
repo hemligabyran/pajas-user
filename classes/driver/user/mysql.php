@@ -40,6 +40,7 @@ class Driver_User_Mysql extends Driver_User
 			`uri` varchar(128) NOT NULL,
 			PRIMARY KEY (`role`,`uri`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;');
+		$this->pdo->query('ALTER TABLE `order_rows_fields` ADD INDEX `row_id_idx` (`row_id`);');
 	}
 
 	public function get_data_field_id($field_name)
@@ -334,9 +335,7 @@ class Driver_User_Mysql extends Driver_User
 		{
 			$fields = array();
 			foreach ($user_data as $field => $content)
-			{
 				if ($field != 'id') $fields[] = $this->pdo->quote($field);
-			}
 
 			if (count($fields))
 			{
