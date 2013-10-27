@@ -14,7 +14,7 @@ class Model_Users extends Model
 
 	public function get()
 	{
-/*
+		/*
 		if ($this->fields)
 		{
 			$sql = 'SELECT
@@ -58,7 +58,8 @@ class Model_Users extends Model
 		}
 
 		return $users;
-*/
+		*/
+
 		$data_fields = array();
 		$sql         = 'SELECT users.id,users.username,';
 
@@ -107,10 +108,12 @@ class Model_Users extends Model
 					if (is_array($search_string))
 					{
 						foreach ($search_string as $this_search_string)
-							$sql .= ' users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).') OR';
+							$sql .= ' users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data LIKE '.$this->pdo->quote('%'.$this_search_string.'%').') OR';
 					}
+					elseif ($search_string === TRUE)
+						$sql .= ' users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).')) OR';
 					else
-						$sql .= ' users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($search_string).') OR';
+						$sql .= ' users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data LIKE '.$this->pdo->quote('%'.$search_string.'%').') OR';
 				}
 			}
 
@@ -125,6 +128,8 @@ class Model_Users extends Model
 					foreach ($search_string as $this_search_string)
 						$sql .= ' AND users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).')';
 				}
+				elseif ($search_string === TRUE)
+					$sql .= ' AND users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).'))';
 				else
 					$sql .= ' AND users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($search_string).')';
 			}

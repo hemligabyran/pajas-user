@@ -387,7 +387,7 @@ class Model_User extends Model
 				'role' => array('admin')
 			);
 		}
-		elseif (($this->username) || $this->username = self::driver()->get_username_by_id($id))
+		elseif ($this->username || $this->username = self::driver()->get_username_by_id($id))
 		{
 			$this->id        = (int) $id;
 			$this->user_data = self::driver()->get_user_data($id);
