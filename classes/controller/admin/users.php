@@ -25,9 +25,7 @@ class Controller_Admin_Users extends Admincontroller {
 	{
 		$fields = array();
 		foreach (User::get_data_fields() as $field_id => $field_name)
-		{
 			$fields['field id="'.$field_id.'"'] = $field_name;
-		}
 
 		$this->xml_content_users = $this->xml_content->appendChild($this->dom->createElement('users'));
 		xml::to_XML($fields, $this->xml_content_users);
@@ -64,9 +62,9 @@ class Controller_Admin_Users extends Admincontroller {
 			if (isset($_POST['do_add_field']))
 			{
 				// Add another user data field and save no data, but repopulate the form fields
-				if ( ! isset($_SESSION['detail_fields'])) $_SESSION['detail_fields'] = array();
+				$detail_fields = Session::instance()->get('detail_fields', array());
 
-				$_SESSION['detail_fields'][] = $_POST['add_field'];
+				$detail_fields[] = $_POST['add_field'];
 
 				// Reconstruct the form data to repopulate the form
 				$formdata    = array();
@@ -106,7 +104,8 @@ class Controller_Admin_Users extends Admincontroller {
 					}
 
 					// Organize the field data and set the session fields
-					$fields = $_SESSION['detail_fields'] = array();
+					$fields = array();
+					Session::instance()->set('detail_fields', array());
 
 					foreach ($post_values as $key => $value)
 					{
@@ -171,15 +170,16 @@ class Controller_Admin_Users extends Admincontroller {
 			}
 		}
 
-		if ( ! empty($_SESSION['detail_fields']))
+		$detail_fields = Session::instance()->get('detail_fields', array());
+
+		if ( ! empty($detail_fields))
 		{
-			foreach ($_SESSION['detail_fields'] as $field_id)
+			foreach ($detail_fields as $field_id)
 			{
 				$counter = 1;
 				while (isset($formdata['field_'.$field_id.'_'.$counter]))
-				{
 					$counter++;
-				}
+
 				$formdata['field_'.$field_id.'_'.$counter] = '';
 			}
 		}

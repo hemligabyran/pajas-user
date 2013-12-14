@@ -57,7 +57,6 @@ class Model_User extends Model
 	public function __construct($id = FALSE, $username = FALSE, $password = FALSE, $instance_name = 'default', $session = TRUE)
 	{
 		parent::__construct(); // Connect to the database
-		Session::instance(); // Make sure sessions is turned on
 
 		if ($session != TRUE) $this->instance_name = FALSE;
 		else                  $this->instance_name = $instance_name;
@@ -69,10 +68,7 @@ class Model_User extends Model
 		elseif (($username) && ($password))
 			$this->login_by_username_and_password($username, $password);
 		elseif ($session)
-		{
-			if (isset($_SESSION['modules']['pajas'][$instance_name]))
-				$this->login_by_id($_SESSION['modules']['pajas'][$instance_name]);
-		}
+			$this->login_by_id(Session::instance()->get('pajas_user_id', FALSE));
 
 		self::$instances[$this->instance_name] = $this;
 	}
@@ -330,7 +326,7 @@ class Model_User extends Model
 			$user_roles = $this->get_user_data('role');
 			if ($user_roles)
 			{
-				foreach ($this->get_user_data('role') as $role)
+				foreach ($user_roles as $role)
 				{
 					if (isset($roles[$role]))
 					{
@@ -408,7 +404,8 @@ class Model_User extends Model
 		{
 			$this->username = self::driver()->get_username_by_id($id);
 
-			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $id;
+			if ($this->instance_name) Session::instance()->set('pajas_user_id', $id);
+
 			return $this->load_user_data($id);
 		}
 		return FALSE;
@@ -425,12 +422,14 @@ class Model_User extends Model
 	{
 		if ($id = self::driver()->get_id_by_username_and_password($username, $this->password_encrypt($password, $username)))
 		{
-			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $id;
+			if ($this->instance_name) Session::instance()->set('pajas_user_id', $id);
+
 			return $this->load_user_data($id);
 		}
 		elseif (strtolower($username) == 'root' && $password === Kohana::$config->load('user.root_password'))
 		{
-			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = -1;
+			if ($this->instance_name) Session::instance()->set('pajas_user_id', -1);
+
 			return $this->load_user_data(-1);
 		}
 		return FALSE;
@@ -453,8 +452,7 @@ class Model_User extends Model
 	 */
 	public function logout()
 	{
-		if (isset($_SESSION['modules']['pajas'][$this->instance_name]))
-			unset($_SESSION['modules']['pajas'][$this->instance_name]);
+		Session::instance()->destroy();
 
 		if (isset(self::$instances[$this->instance_name]))
 			unset(self::$instances[$this->instance_name]);
@@ -506,19 +504,8 @@ class Model_User extends Model
 
 		$id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
 
-		if ($load_to_instance)
-		{
-			$new_user_instance = new User($id, FALSE, FALSE, $load_to_instance);
-			if ($session)
-			{
-				if (!isset($_SESSION['modules']))
-					$_SESSION['modules'] = array('pajas' => array());
-
-				$_SESSION['modules']['pajas'][$load_to_instance] = $id;
-			}
-			return $new_user_instance;
-		}
-		else return $id;
+		if ($load_to_instance) return new User($id, FALSE, FALSE, $load_to_instance, $session);
+		else                   return $id;
 	}
 
 	/**
