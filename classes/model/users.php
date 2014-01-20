@@ -99,7 +99,12 @@ class Model_Users extends Model
 		// Searches
 			if ($this->search || $this->search_by_fields) $sql .= ' AND (';
 
-			if ($this->search) $sql .= 'username LIKE '.$this->pdo->quote('%'.$this->search.'%').' OR users_data.data LIKE '.$this->pdo->quote('%'.$this->search.'%').' OR';
+			if ($this->search)
+			{
+				$sql .= 'username LIKE '.$this->pdo->quote('%'.$this->search.'%').'
+					OR users_data.data LIKE '.$this->pdo->quote('%'.$this->search.'%').'
+					OR users.id = '.$this->pdo->quote($this->search).' OR';
+			}
 
 			if ( ! empty($this->search_by_fields))
 			{
