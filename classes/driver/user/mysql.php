@@ -330,6 +330,7 @@ class Driver_User_Mysql extends Driver_User
 
 	public function set_data($id, $user_data, $clear_previous_data = TRUE)
 	{
+		if ($id == -1) return FALSE; // You cant set user data for the root user
 
 		if ($clear_previous_data)
 		{
