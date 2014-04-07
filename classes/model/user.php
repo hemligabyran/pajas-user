@@ -63,7 +63,8 @@ class Model_User extends Model
 
 		if ($id)
 		{
-			if ( ! $this->login_by_id($id)) throw new Exception('Invalid user ID');
+			if ( ! $this->login_by_id($id))
+				Kohana::$log->add(LOG::WARNING, 'Instance of user module with invalid user_id='.$id);
 		}
 		elseif (($username) && ($password))
 			$this->login_by_username_and_password($username, $password);
