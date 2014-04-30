@@ -89,9 +89,6 @@
 			<tbody>
 				<xsl:for-each select="users/field">
 					<tr>
-						<xsl:if test="position() mod 2 = 1">
-							<xsl:attribute name="class">odd</xsl:attribute>
-						</xsl:if>
 						<td><xsl:value-of select="@id" /></td>
 						<td><xsl:value-of select="." /></td>
 						<td>
@@ -183,9 +180,6 @@
 			<tbody>
 				<xsl:for-each select="users/user">
 					<tr>
-						<xsl:if test="position() mod 2 = 1">
-							<xsl:attribute name="class">odd</xsl:attribute>
-						</xsl:if>
 						<td><xsl:value-of select="@id" /></td>
 						<td><xsl:value-of select="username" /></td>
 						<td><xsl:value-of select="role" /></td>

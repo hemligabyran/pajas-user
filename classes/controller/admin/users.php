@@ -66,6 +66,8 @@ class Controller_Admin_Users extends Admincontroller {
 
 				$detail_fields[] = $_POST['add_field'];
 
+				Session::instance()->set('detail_fields', $detail_fields);
+
 				// Reconstruct the form data to repopulate the form
 				$formdata    = array();
 				$counter     = 0;
