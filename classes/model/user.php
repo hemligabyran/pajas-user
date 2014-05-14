@@ -499,9 +499,11 @@ class Model_User extends Model
 	public function new_user($username, $password, $user_data = array(), $load_to_instance = FALSE, $session = FALSE)
 	{
 		Session::instance(); // Make sure sessions is turned on
-		if ($load_to_instance === TRUE) $load_to_instance = 'default';
+		if ($load_to_instance === TRUE)
+			$load_to_instance = 'default';
 
-		if ( ! self::username_available($username)) return FALSE;
+		if ( ! self::username_available($username))
+			return FALSE;
 
 		$id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
 
