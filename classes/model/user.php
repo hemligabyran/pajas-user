@@ -241,6 +241,11 @@ class Model_User extends Model
 		return self::driver()->get_id_by_field($field, $value);
 	}
 
+	public static function get_ids_by_field($field, $value = FALSE)
+	{
+		return self::driver()->get_ids_by_field($field, $value);
+	}
+
 	/**
 	 * Get user ID by username
 	 *

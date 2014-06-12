@@ -83,6 +83,7 @@ abstract class Driver_User extends Model
 	 * @return int (Will only return first row if several matches exists)
 	 */
 	abstract public function get_id_by_field($field, $value = FALSE);
+	abstract public function get_ids_by_field($field, $value = FALSE);
 
 	/**
 	 * Get user id by username

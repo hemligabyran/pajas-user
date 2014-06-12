@@ -87,7 +87,16 @@ class Driver_User_Mysql extends Driver_User
 		return $user_data;
 	}
 
+	// TODO: DEPRECATED
 	public function get_id_by_field($field, $value = FALSE)
+	{
+		foreach (self::get_ids_by_field($field, $value) as $user_id)
+			return $user_id;
+
+		return FALSE;
+	}
+
+	public function get_ids_by_field($field, $value = FALSE)
 	{
 		$sql = '
 			SELECT user_id
@@ -99,7 +108,11 @@ class Driver_User_Mysql extends Driver_User
 			$sql .= '
 				AND data = '.$this->pdo->quote($value);
 
-		return $this->pdo->query($sql)->fetchColumn();
+		$user_ids = array();
+		foreach ($this->pdo->query($sql) as $row)
+			$user_ids[] = intval($row['user_id']);
+
+		return $user_ids;
 	}
 
 	public function get_id_by_username($username)
