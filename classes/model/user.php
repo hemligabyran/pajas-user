@@ -197,23 +197,25 @@ class Model_User extends Model
 	 */
 	public function get_user_data($field = FALSE, $return_as_string = FALSE)
 	{
-	  if (is_array($this->user_data))
-	  {
-	  	if ($field)
-	  	{
-	  		if (isset($this->user_data[$field]))
-	  		{
-	  			if ($return_as_string)
-	  			{
-	  				return reset($this->user_data[$field]);
-	  			}
-	  			else return $this->user_data[$field];
-	  		}
-	  	}
-	  	else
-		    return $this->user_data;
-	  }
-	  return FALSE;
+		if (is_array($this->user_data))
+		{
+			if ($field)
+			{
+				if (isset($this->user_data[$field]))
+				{
+					if ($return_as_string)
+						return reset($this->user_data[$field]);
+					else
+						return $this->user_data[$field];
+				}
+			}
+			else
+			{
+				return $this->user_data;
+			}
+		}
+
+		return FALSE;
 	}
 
 	/**
