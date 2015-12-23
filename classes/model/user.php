@@ -197,23 +197,25 @@ class Model_User extends Model
 	 */
 	public function get_user_data($field = FALSE, $return_as_string = FALSE)
 	{
-	  if (is_array($this->user_data))
-	  {
-	  	if ($field)
-	  	{
-	  		if (isset($this->user_data[$field]))
-	  		{
-	  			if ($return_as_string)
-	  			{
-	  				return reset($this->user_data[$field]);
-	  			}
-	  			else return $this->user_data[$field];
-	  		}
-	  	}
-	  	else
-		    return $this->user_data;
-	  }
-	  return FALSE;
+		if (is_array($this->user_data))
+		{
+			if ($field)
+			{
+				if (isset($this->user_data[$field]))
+				{
+					if ($return_as_string)
+						return reset($this->user_data[$field]);
+					else
+						return $this->user_data[$field];
+				}
+			}
+			else
+			{
+				return $this->user_data;
+			}
+		}
+
+		return FALSE;
 	}
 
 	/**
@@ -239,6 +241,11 @@ class Model_User extends Model
 	public static function get_id_by_field($field, $value = FALSE)
 	{
 		return self::driver()->get_id_by_field($field, $value);
+	}
+
+	public static function get_ids_by_field($field, $value = FALSE)
+	{
+		return self::driver()->get_ids_by_field($field, $value);
 	}
 
 	/**
@@ -499,9 +506,11 @@ class Model_User extends Model
 	public function new_user($username, $password, $user_data = array(), $load_to_instance = FALSE, $session = FALSE)
 	{
 		Session::instance(); // Make sure sessions is turned on
-		if ($load_to_instance === TRUE) $load_to_instance = 'default';
+		if ($load_to_instance === TRUE)
+			$load_to_instance = 'default';
 
-		if ( ! self::username_available($username)) return FALSE;
+		if ( ! self::username_available($username))
+			return FALSE;
 
 		$id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
 

@@ -55,6 +55,8 @@ class Driver_User_Mysql extends Driver_User
 
 	public function get_data_fields()
 	{
+		$pdo = Pajas_Pdo::instance();
+
 		$data_fields = array();
 		foreach ($this->pdo->query('SELECT id, name FROM user_data_fields ORDER BY name;') as $row)
 		{
@@ -87,7 +89,16 @@ class Driver_User_Mysql extends Driver_User
 		return $user_data;
 	}
 
+	// TODO: DEPRECATED
 	public function get_id_by_field($field, $value = FALSE)
+	{
+		foreach (self::get_ids_by_field($field, $value) as $user_id)
+			return $user_id;
+
+		return FALSE;
+	}
+
+	public function get_ids_by_field($field, $value = FALSE)
 	{
 		$sql = '
 			SELECT user_id
@@ -99,7 +110,11 @@ class Driver_User_Mysql extends Driver_User
 			$sql .= '
 				AND data = '.$this->pdo->quote($value);
 
-		return $this->pdo->query($sql)->fetchColumn();
+		$user_ids = array();
+		foreach ($this->pdo->query($sql) as $row)
+			$user_ids[] = intval($row['user_id']);
+
+		return $user_ids;
 	}
 
 	public function get_id_by_username($username)
@@ -336,7 +351,8 @@ class Driver_User_Mysql extends Driver_User
 		{
 			$fields = array();
 			foreach ($user_data as $field => $content)
-				if ($field != 'id') $fields[] = $this->pdo->quote($field);
+				if ($field != 'id')
+					$fields[] = $this->pdo->quote($field);
 
 			if (count($fields))
 			{
@@ -352,7 +368,8 @@ class Driver_User_Mysql extends Driver_User
 
 		if (count($user_data))
 		{
-			$sql = 'INSERT INTO user_users_data (user_id, field_id, data) VALUES';
+			$run_sql = FALSE;
+			$sql     = 'INSERT INTO user_users_data (user_id, field_id, data) VALUES';
 			foreach ($user_data as $field => $content)
 			{
 				if ( ! is_array($content)) $content = array($content);
@@ -361,6 +378,8 @@ class Driver_User_Mysql extends Driver_User
 				{
 					if ($content_piece != '')
 					{
+						$run_sql = TRUE;
+
 						$sql .= '
 							(
 								'.$this->pdo->quote($id).',
@@ -372,7 +391,10 @@ class Driver_User_Mysql extends Driver_User
 			}
 			$sql = substr($sql, 0, strlen($sql) - 1);
 
-			return $this->pdo->query($sql);
+			if ($run_sql)
+				return $this->pdo->query($sql);
+			else
+				return TRUE;
 		}
 
 		return TRUE;

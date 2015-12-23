@@ -130,8 +130,11 @@ class Model_Users extends Model
 			{
 				if (is_array($search_string))
 				{
+					$sql .= ' AND (';
 					foreach ($search_string as $this_search_string)
-						$sql .= ' AND users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).')';
+						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).') OR ';
+					$sql = substr($sql, 0, strlen($sql) - 4);
+					$sql .= ')';
 				}
 				elseif ($search_string === TRUE)
 					$sql .= ' AND users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).'))';
