@@ -380,6 +380,7 @@ class Driver_User_Mysql extends Driver_User
 
 	public function set_password($id, $password)
 	{
+		Kohana::$log->add(LOG::INFO, 'Setting new password for user id #'.$id);
 		return $this->pdo->query('UPDATE user_users SET password = '.$this->pdo->quote($password).' WHERE id = '.$this->pdo->quote($id));
 	}
 
