@@ -309,7 +309,7 @@ class Model_User extends Model
 		// Root always have access
 		if ($this->id == -1) return TRUE;
 
-		$request_URI = substr($URI, 1);
+		$request_URI = rtrim(strtok(substr($URI, 1), '?'),'/');
 		$restricted  = FALSE;
 		foreach (self::get_restricted_URIs() as $restricted_URI)
 		{
